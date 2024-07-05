@@ -1,69 +1,36 @@
-	.file	"ackermann.c"
-	.text
-	.globl	ackermann
-	.type	ackermann, @function
+.section .text
+.global ackermann
+.type ackermann, %function
 ackermann:
-.LFB0:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	subq	$16, %rsp
-	movl	%edi, -4(%rbp)
-	movl	%esi, -8(%rbp)
-	cmpl	$0, -4(%rbp)
-	jne	.L2
-	movl	-8(%rbp), %eax
-	addl	$1, %eax
-	jmp	.L3
-.L2:
-	cmpl	$0, -8(%rbp)
-	jne	.L4
-	movl	-4(%rbp), %eax
-	leal	-1(%rax), %edx
-	movl	-8(%rbp), %eax
-	movl	%eax, %esi
-	movl	%edx, %edi
-	call	ackermann
-	jmp	.L3
-.L4:
-	movl	-8(%rbp), %eax
-	leal	-1(%rax), %edx
-	movl	-4(%rbp), %eax
-	movl	%edx, %esi
-	movl	%eax, %edi
-	call	ackermann
-	movl	%eax, %edx
-	movl	-4(%rbp), %eax
-	subl	$1, %eax
-	movl	%edx, %esi
-	movl	%eax, %edi
-	call	ackermann
-.L3:
-	leave
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE0:
-	.size	ackermann, .-ackermann
-	.ident	"GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0"
-	.section	.note.GNU-stack,"",@progbits
-	.section	.note.gnu.property,"a"
-	.align 8
-	.long	1f - 0f
-	.long	4f - 1f
-	.long	5
-0:
-	.string	"GNU"
-1:
-	.align 8
-	.long	0xc0000002
-	.long	3f - 2f
-2:
-	.long	0x3
-3:
-	.align 8
-4:
+    stp x29, x30, [sp, -16]!
+    mov x29, sp
+
+    cmp w0, 0
+    bne manejar_m_no_es_cero
+
+    add w0, w1, 1
+    b retornar_ackermann
+
+manejar_m_no_es_cero:
+    cmp w1, 0
+    bne manejar_n_no_es_cero
+
+    sub w0, w0, 1
+    mov w1, 1
+    bl ackermann
+    b retornar_ackermann
+
+manejar_n_no_es_cero:
+    sub w1, w1, 1
+    mov x2, x0
+    bl ackermann
+    mov w1, w0
+    mov x0, x2
+    sub w0, w0, 1
+    bl ackermann
+
+retornar_ackermann:
+    ldp x29, x30, [sp], 16
+    ret
+
+.size ackermann, .-ackermann

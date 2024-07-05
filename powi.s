@@ -1,52 +1,30 @@
-	.file	"powi.c"
-	.text
-	.globl	powi
-	.type	powi, @function
+.text
+.global powi
+.type powi, %function
 powi:
-.LFB0:
-	.cfi_startproc
-	endbr64
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	movl	%edi, -20(%rbp)
-	movl	%esi, -24(%rbp)
-	movl	$1, -4(%rbp)
-	jmp	.L2
-.L3:
-	movl	-4(%rbp), %eax
-	imull	-20(%rbp), %eax
-	movl	%eax, -4(%rbp)
-.L2:
-	movl	-24(%rbp), %eax
-	leal	-1(%rax), %edx
-	movl	%edx, -24(%rbp)
-	testl	%eax, %eax
-	jne	.L3
-	movl	-4(%rbp), %eax
-	popq	%rbp
-	.cfi_def_cfa 7, 8
-	ret
-	.cfi_endproc
-.LFE0:
-	.size	powi, .-powi
-	.ident	"GCC: (Ubuntu 13.2.0-23ubuntu4) 13.2.0"
-	.section	.note.GNU-stack,"",@progbits
-	.section	.note.gnu.property,"a"
-	.align 8
-	.long	1f - 0f
-	.long	4f - 1f
-	.long	5
-0:
-	.string	"GNU"
-1:
-	.align 8
-	.long	0xc0000002
-	.long	3f - 2f
-2:
-	.long	0x3
-3:
-	.align 8
-4:
+    stp     x29, x30, [sp, -16]!  // Save frame pointer and return address
+    mov     x29, sp               // Update frame pointer
+
+    str     w0, [x29, -20]        // Store first argument (base) in stack
+    str     w1, [x29, -24]        // Store second argument (exp) in stack
+    mov     w0, #1                // Initialize result to 1
+    str     w0, [x29, -4]         // Store result in stack
+
+    b       L2                    // Jump to L2
+
+L3:
+    ldr     w0, [x29, -4]         // Load current result
+    ldr     w1, [x29, -20]        // Load base
+    mul     w0, w0, w1            // Multiply result by base
+    str     w0, [x29, -4]         // Store new result
+
+L2:
+    ldr     w0, [x29, -24]        // Load exp
+    sub     w0, w0, #1            // Decrement exp
+    str     w0, [x29, -24]        // Store new exp
+    cbnz    w0, L3                // If exp != 0, jump to L3
+
+    ldr     w0, [x29, -4]         // Load final result
+    ldp     x29, x30, [sp], 16    // Restore frame pointer and return address
+    ret                           // Return
+    .size   powi, .-powi
